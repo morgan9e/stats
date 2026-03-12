@@ -121,10 +121,12 @@ class ApplicationSettings: NSStackView {
                 state: self.combinedModulesState
             )),
             PreferencesRow(component: self.moduleSelector),
-            PreferencesRow(localizedString("Spacing"), component: selectView(
-                action: #selector(self.toggleCombinedModulesSpacing),
-                items: CombinedModulesSpacings,
-                selected: self.combinedModulesSpacing
+            PreferencesRow(localizedString("Spacing"), component: sliderView(
+                action: #selector(self.changeCombinedModulesSpacing),
+                value: Int(self.combinedModulesSpacing) ?? 0,
+                initialValue: "\(Int(self.combinedModulesSpacing) ?? 0) px",
+                min: -8,
+                max: 8
             )),
             PreferencesRow(localizedString("Separator"), component: switchView(
                 action: #selector(self.toggleCombinedModulesSeparator),
@@ -339,9 +341,12 @@ class ApplicationSettings: NSStackView {
         NotificationCenter.default.post(name: .toggleOneView, object: nil, userInfo: nil)
     }
     
-    @objc private func toggleCombinedModulesSpacing(_ sender: NSMenuItem) {
-        guard let key = sender.representedObject as? String else { return }
-        self.combinedModulesSpacing = key
+    @objc private func changeCombinedModulesSpacing(_ sender: NSSlider) {
+        let value = Int(sender.intValue)
+        self.combinedModulesSpacing = "\(value)"
+        if let valueField = sender.superview?.subviews.last as? NSTextField {
+            valueField.stringValue = "\(value) px"
+        }
         NotificationCenter.default.post(name: .moduleRearrange, object: nil, userInfo: nil)
     }
     
